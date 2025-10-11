@@ -1,0 +1,25 @@
+[remap]
+
+importer="cubemap_texture"
+type="CompressedCubemap"
+uid="uid://bs78evs1saajk"
+path="res://.godot/imported/stars.hdr-5e82040b29a3d04a297db5c417d5f5e5.ccube"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://world/assets/cubemaps/stars.hdr"
+dest_files=["res://.godot/imported/stars.hdr-5e82040b29a3d04a297db5c417d5f5e5.ccube"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=true
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/channel_pack=0
+mipmaps/generate=false
+mipmaps/limit=-1
+slices/arrangement=3

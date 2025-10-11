@@ -1,0 +1,31 @@
+[gd_scene load_steps=6 format=3 uid="uid://dkwxr6ckf21tn"]
+
+[ext_resource type="Script" uid="uid://bwky0ggnoer5o" path="res://ui/MultiplayerMenu.gd" id="1_multi"]
+[ext_resource type="PackedScene" uid="uid://b6t1xhcfhvb2w" path="res://ui/MainMenu.tscn" id="3_main"]
+[ext_resource type="PackedScene" uid="uid://cpuqvt6wuax23" path="res://ui/CreateLobby.tscn" id="4_create"]
+[ext_resource type="PackedScene" uid="uid://c1n2p8vvkdqxm" path="res://ui/LobbyBrowser.tscn" id="5_browser"]
+[ext_resource type="PackedScene" path="res://ui/SettingsMenu.tscn" id="6_settings"]
+
+[node name="MultiplayerMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_multi")
+
+[node name="MainMenu" parent="." instance=ExtResource("3_main")]
+layout_mode = 1
+
+[node name="CreateLobby" parent="." instance=ExtResource("4_create")]
+visible = false
+layout_mode = 1
+
+[node name="LobbyBrowser" parent="." instance=ExtResource("5_browser")]
+visible = false
+layout_mode = 1
+
+[node name="SettingsMenu" parent="." instance=ExtResource("6_settings")]
+visible = false
+layout_mode = 1

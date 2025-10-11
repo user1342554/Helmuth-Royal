@@ -1,0 +1,150 @@
+[gd_scene load_steps=10 format=3 uid="uid://bsyknylsefx3b"]
+
+[ext_resource type="Script" path="res://world/GameUI.gd" id="1_h54ki"]
+[ext_resource type="PackedScene" uid="uid://chyyrpx08oj3b" path="res://world/Checkpoint.tscn" id="2_7m5bo"]
+[ext_resource type="PackedScene" uid="uid://cyxdwyu8awtpf" path="res://ui/Toast.tscn" id="3_vx18r"]
+[ext_resource type="PackedScene" uid="uid://pause_menu_001" path="res://ui/PauseMenu.tscn" id="4_pause"]
+[ext_resource type="Material" uid="uid://7wuop4abysij" path="res://world/materials/SkyMaterial.tres" id="5_sky"]
+[ext_resource type="Script" path="res://world/sky.gd" id="6_sky"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_7bgix"]
+size = Vector2(50, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uwc0v"]
+size = Vector3(50, 1, 50)
+
+[sub_resource type="Sky" id="Sky_procedural"]
+sky_material = ExtResource("5_sky")
+process_mode = 2
+
+[sub_resource type="Environment" id="Environment_xn32g"]
+background_mode = 2
+sky = SubResource("Sky_procedural")
+ambient_light_source = 3
+ambient_light_color = Color(0.933594, 0.846958, 0.800123, 1)
+ambient_light_sky_contribution = 0.8
+ambient_light_energy = 0.3
+tonemap_mode = 0
+tonemap_white = 1.0
+glow_enabled = true
+glow_intensity = 0.3
+glow_strength = 0.8
+glow_bloom = 0.1
+glow_blend_mode = 0
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.01
+volumetric_fog_albedo = Color(0.7, 0.75, 0.85, 1)
+volumetric_fog_emission_energy = 0.0
+
+[node name="DreamTest" type="Node3D"]
+
+[node name="Ground" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("PlaneMesh_7bgix")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_uwc0v")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.886867, 0.462027, 0, -0.462027, 0.886867, 0, 0, 0)
+light_color = Color(1, 0.886177, 0.793626, 1)
+light_energy = 1.2
+light_angular_distance = 1.5
+shadow_enabled = true
+shadow_bias = 0.05
+shadow_normal_bias = 1.0
+directional_shadow_mode = 1
+directional_shadow_split_1 = 0.1
+directional_shadow_split_2 = 0.2
+directional_shadow_split_3 = 0.5
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 100.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_xn32g")
+
+[node name="Sky" type="Node" node_paths=PackedStringArray("environment", "sun") parent="."]
+script = ExtResource("6_sky")
+time_of_day = 0.5
+latitude = 45.0
+auto_cycle = true
+cycle_speed = 0.00166667
+sky_material = ExtResource("5_sky")
+environment = NodePath("../WorldEnvironment")
+sun = NodePath("../Sun")
+
+[node name="Checkpoint" parent="." instance=ExtResource("2_7m5bo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
+
+[node name="Checkpoint2" parent="." instance=ExtResource("2_7m5bo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 8)
+
+[node name="GameUI" type="CanvasLayer" parent="."]
+script = ExtResource("1_h54ki")
+
+[node name="Toast" parent="GameUI" instance=ExtResource("3_vx18r")]
+
+[node name="StaminaBar" type="ProgressBar" parent="GameUI"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="Crosshair" type="Control" parent="GameUI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VLine" type="ColorRect" parent="GameUI/Crosshair"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -1.0
+offset_top = -8.0
+offset_right = 1.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0.8)
+
+[node name="HLine" type="ColorRect" parent="GameUI/Crosshair"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -1.0
+offset_right = 8.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0.8)
+
+[node name="PauseMenu" parent="GameUI" instance=ExtResource("4_pause")]
