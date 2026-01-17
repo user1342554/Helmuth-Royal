@@ -1,0 +1,223 @@
+[gd_scene load_steps=8 format=3 uid="uid://ctvk2y5nqmjxy"]
+
+[ext_resource type="Script" uid="uid://c1pe6lb28g5rt" path="res://scenes/game/world.gd" id="1_world"]
+[ext_resource type="PackedScene" uid="uid://c8xymenu001" path="res://scenes/ui/escape_menu.tscn" id="3_escape"]
+[ext_resource type="Material" uid="uid://7wuop4abysij" path="res://world/materials/SkyMaterial.tres" id="4_sky_material"]
+[ext_resource type="Script" uid="uid://j7dotk38ix2b" path="res://world/sky.gd" id="5_sky_script"]
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = ExtResource("4_sky_material")
+process_mode = 2
+radiance_size = 4
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 1
+ambient_light_energy = 0.3
+reflected_light_source = 2
+tonemap_mode = 3
+ssr_enabled = true
+ssao_enabled = true
+ssil_enabled = true
+sdfgi_enabled = true
+sdfgi_use_occlusion = true
+sdfgi_cascades = 6
+sdfgi_min_cell_size = 0.05
+glow_enabled = true
+glow_bloom = 0.2
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.01
+volumetric_fog_albedo = Color(0.7, 0.75, 0.85, 1)
+volumetric_fog_emission_energy = 0.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
+albedo_color = Color(0.25, 0.5, 0.2, 1)
+roughness = 0.9
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_world")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.70710677, -3.090862e-08, 0.70710677, -0.70710677, -3.090862e-08, 0.70710677, 0, -1, -4.371139e-08, 0, 0, 0)
+light_color = Color(1, 0.945585, 0.89569, 1)
+light_angular_distance = 1.5
+shadow_enabled = true
+shadow_bias = 0.02
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 200.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="Sky" type="Node" parent="." node_paths=PackedStringArray("environment", "sun")]
+script = ExtResource("5_sky_script")
+time_of_day = 0
+cycle_speed = 0.00166667
+environment = NodePath("../WorldEnvironment")
+sun = NodePath("../Sun")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="Floor" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+use_collision = true
+size = Vector3(300, 1, 300)
+material = SubResource("StandardMaterial3D_1")
+
+[node name="Objects" type="Node3D" parent="Environment"]
+
+[node name="Rock1" type="CSGSphere3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.5, 20)
+use_collision = true
+radius = 2.0
+radial_segments = 8
+rings = 4
+
+[node name="Rock2" type="CSGSphere3D" parent="Environment/Objects"]
+transform = Transform3D(1.5, 0, 0, 0, 1, 0, 0, 0, 1.5, -25, 1, -15)
+use_collision = true
+radius = 1.5
+radial_segments = 8
+rings = 4
+
+[node name="Rock3" type="CSGSphere3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 2, -30)
+use_collision = true
+radius = 3.0
+radial_segments = 8
+rings = 4
+
+[node name="Crate1" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1, 10)
+use_collision = true
+size = Vector3(2, 2, 2)
+
+[node name="Crate2" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1.5, 40)
+use_collision = true
+size = Vector3(3, 3, 3)
+
+[node name="Crate3" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0.75, -35)
+use_collision = true
+size = Vector3(1.5, 1.5, 1.5)
+
+[node name="Tower1" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 5, 0)
+use_collision = true
+size = Vector3(4, 10, 4)
+
+[node name="Tower2" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 7.5, 20)
+use_collision = true
+size = Vector3(5, 15, 5)
+
+[node name="Wall1" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.312256, 60)
+use_collision = true
+size = Vector3(30, 22.624512, 1)
+
+[node name="Wall1" type="CSGBox3D" parent="Environment/Objects/Wall1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22104263, 3.9078293)
+use_collision = true
+size = Vector3(30, 24.21106, 1)
+
+[node name="Wall2" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -60, 1.5, -40)
+use_collision = true
+size = Vector3(20, 3, 0.5)
+
+[node name="Ramp1" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 20, 1, -20)
+use_collision = true
+size = Vector3(4, 0.3, 8)
+
+[node name="Platform1" type="CSGBox3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 3, -25)
+use_collision = true
+size = Vector3(6, 0.5, 6)
+
+[node name="TreeTrunk1" type="CSGCylinder3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 3, 50)
+use_collision = true
+height = 6.0
+
+[node name="TreeTop1" type="CSGSphere3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 8, 50)
+radius = 3.0
+radial_segments = 8
+rings = 4
+
+[node name="TreeTrunk2" type="CSGCylinder3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 4, -50)
+use_collision = true
+radius = 0.7
+height = 8.0
+
+[node name="TreeTop2" type="CSGSphere3D" parent="Environment/Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 11, -50)
+radius = 4.0
+radial_segments = 8
+rings = 4
+
+[node name="Players" type="Node3D" parent="."]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="GameUI" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBar" type="HBoxContainer" parent="UI/GameUI"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_constants/separation = 20
+
+[node name="AliveCount" type="Label" parent="UI/GameUI/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Alive: 20"
+
+[node name="MatchPhase" type="Label" parent="UI/GameUI/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Lobby"
+
+[node name="Crosshair" type="Control" parent="UI/GameUI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dot" type="ColorRect" parent="UI/GameUI/Crosshair"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0.8)
+
+[node name="EscapeMenu" parent="UI" instance=ExtResource("3_escape")]
+visible = false

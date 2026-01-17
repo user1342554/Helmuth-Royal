@@ -3,12 +3,12 @@ extends Node
 # Advanced Graphics Settings System with comprehensive AAA-quality options
 
 enum QualityPreset {
-	POTATO,         # Absolute minimum for potato PCs (~200+ FPS target)
-	ULTRA_LOW,      # Maximum FPS (~120+ FPS target)
-	LOW,            # High FPS (~90+ FPS target)
-	MEDIUM,         # Balanced (~60 FPS target)
-	HIGH,           # Quality (~60 FPS target)
-	ULTRA,          # Maximum Quality (~45+ FPS target)
+	POTATO,         # Absolute minimum for potato PCs more as a joke
+	ULTRA_LOW,      # Maximum FPS 
+	LOW,            # High FPS 
+	MEDIUM,         # Balanced 
+	HIGH,           # Quality 
+	ULTRA,          # Maximum Quality 
 	PAID_FOR_WHOLE_PC,  # I paid for the whole PC - MAX EVERYTHING
 	CUSTOM          # User-defined
 }
@@ -69,6 +69,7 @@ var tonemap_mode := TonemapMode.ACES
 var bloom_enabled := true
 var bloom_intensity := 0.8
 var volumetric_fog_enabled := true
+var clouds_enabled := true  # Enable/disable clouds in sky shader
 var dof_enabled := false
 var motion_blur_enabled := false
 
@@ -80,6 +81,15 @@ var max_lights := 12
 var show_fps_counter := true
 
 signal settings_changed
+
+# Flag to prevent switching to Custom when loading settings or applying preset
+var _applying_preset := false
+
+# Debounce system to prevent rapid setting changes from crashing
+var _apply_pending := false
+var _apply_timer: Timer = null
+const DEBOUNCE_TIME := 0.1  # 100ms debounce
+var _is_applying := false  # Prevent re-entry during apply
 
 # Default values for reset
 const DEFAULTS = {
@@ -105,6 +115,7 @@ const DEFAULTS = {
 	"bloom_enabled": true,
 	"bloom_intensity": 0.8,
 	"volumetric_fog_enabled": true,
+	"clouds_enabled": true,
 	"dof_enabled": false,
 	"motion_blur_enabled": false,
 	"texture_quality": 2,
@@ -113,8 +124,29 @@ const DEFAULTS = {
 }
 
 func _ready():
+	# Create debounce timer
+	_apply_timer = Timer.new()
+	_apply_timer.one_shot = true
+	_apply_timer.wait_time = DEBOUNCE_TIME
+	_apply_timer.timeout.connect(_on_debounce_timeout)
+	add_child(_apply_timer)
+	
 	print("GraphicsSettings initialized")
 	load_settings()
+
+
+# Debounced apply - batches rapid changes
+func _apply_settings_debounced():
+	if _is_applying:
+		return
+	_apply_pending = true
+	_apply_timer.start()
+
+
+func _on_debounce_timeout():
+	if _apply_pending:
+		_apply_pending = false
+		_apply_all_settings()
 
 # Reset all settings to default
 func reset_to_defaults():
@@ -153,6 +185,7 @@ func reset_to_defaults():
 
 # Apply preset
 func apply_preset(preset: QualityPreset):
+	_applying_preset = true
 	current_preset = preset
 	
 	match preset:
@@ -173,6 +206,7 @@ func apply_preset(preset: QualityPreset):
 	
 	_apply_all_settings()
 	save_settings()
+	_applying_preset = false
 	settings_changed.emit()
 
 # POTATO - Absolute bare minimum for the weakest PCs
@@ -197,9 +231,9 @@ func _apply_potato_settings():
 	dof_enabled = false
 	motion_blur_enabled = false
 	max_lights = 1  # Only 1 light
-	target_fps = 30  # Cap at 30 FPS to save GPU
+	target_fps = 0  # No FPS cap
 	vsync_enabled = false
-	print("Applied POTATO preset - Absolute minimum for weak PCs (30 FPS cap)")
+	print("Applied POTATO preset")
 
 # ULTRA LOW - Maximum FPS (120+ target)
 func _apply_ultra_low_settings():
@@ -224,7 +258,7 @@ func _apply_ultra_low_settings():
 	max_lights = 4
 	target_fps = 0
 	vsync_enabled = false
-	print("Applied ULTRA LOW preset - Target: 120+ FPS")
+	print("Applied ULTRA LOW preset")
 
 # LOW - High FPS (90+ target)
 func _apply_low_settings():
@@ -250,7 +284,7 @@ func _apply_low_settings():
 	max_lights = 6
 	target_fps = 0
 	vsync_enabled = false
-	print("Applied LOW preset - Target: 90+ FPS")
+	print("Applied LOW preset")
 
 # MEDIUM - Balanced (60 target)
 func _apply_medium_settings():
@@ -275,9 +309,9 @@ func _apply_medium_settings():
 	dof_enabled = false
 	motion_blur_enabled = false
 	max_lights = 8
-	target_fps = 60
+	target_fps = 0  # No FPS cap
 	vsync_enabled = true
-	print("Applied MEDIUM preset - Target: 60 FPS")
+	print("Applied MEDIUM preset")
 
 # HIGH - Quality (60 target) - DEFAULT
 func _apply_high_settings():
@@ -306,7 +340,7 @@ func _apply_high_settings():
 	max_lights = 12
 	target_fps = 0
 	vsync_enabled = true
-	print("Applied HIGH preset - Target: 60 FPS")
+	print("Applied HIGH preset")
 
 # ULTRA - Maximum Quality
 func _apply_ultra_settings():
@@ -335,7 +369,7 @@ func _apply_ultra_settings():
 	max_lights = 16
 	target_fps = 0
 	vsync_enabled = true
-	print("Applied ULTRA preset - Target: 45+ FPS")
+	print("Applied ULTRA preset")
 
 # I PAID FOR THE WHOLE PC - ABSOLUTE MAXIMUM EVERYTHING
 func _apply_paid_for_whole_pc_settings():
@@ -364,10 +398,17 @@ func _apply_paid_for_whole_pc_settings():
 	max_lights = 32  # Maximum lights
 	target_fps = 0  # Unlimited FPS
 	vsync_enabled = false  # No VSync - let it rip!
-	print("Applied I PAID FOR THE WHOLE PC preset - GPU GO BRRRRR!")
+	print("Applied I PAID FOR THE WHOLE PC preset")
 
 # Apply all settings to engine
 func _apply_all_settings():
+	# Prevent re-entry which can cause crashes
+	if _is_applying:
+		_apply_pending = true  # Queue another apply
+		return
+	
+	_is_applying = true
+	
 	_apply_aa_settings()
 	_apply_shadow_settings()
 	_apply_gi_settings()
@@ -376,8 +417,18 @@ func _apply_all_settings():
 	_apply_fps_limit()
 	_apply_environment_settings()
 	_apply_performance_settings()
+	_apply_sky_shader_settings()
 	
+	# Save after applying all settings
+	save_settings()
+	
+	_is_applying = false
 	print("Graphics settings applied successfully")
+	
+	# If another apply was requested during this one, do it now (debounced)
+	if _apply_pending:
+		_apply_pending = false
+		_apply_settings_debounced()
 
 func _apply_performance_settings():
 	var viewport = get_viewport()
@@ -395,6 +446,119 @@ func _apply_performance_settings():
 	else:
 		viewport.use_occlusion_culling = true
 		viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_LINEAR
+	
+	# Enable/disable AdaptivePerformance based on preset
+	_apply_adaptive_performance_settings()
+	
+	# Enable/disable aggressive ViewCulling based on preset
+	_apply_view_culling_settings()
+
+
+func _apply_adaptive_performance_settings():
+	# Auto-enable adaptive performance for lower presets that have a target FPS
+	match current_preset:
+		QualityPreset.POTATO:
+			AdaptivePerformance.enable_adaptive_performance(30)
+		QualityPreset.ULTRA_LOW:
+			AdaptivePerformance.enable_adaptive_performance(120)
+		QualityPreset.LOW:
+			AdaptivePerformance.enable_adaptive_performance(90)
+		QualityPreset.MEDIUM:
+			AdaptivePerformance.enable_adaptive_performance(60)
+		_:
+			# HIGH, ULTRA, PAID_FOR_WHOLE_PC, CUSTOM - user wants quality, disable adaptive
+			AdaptivePerformance.disable_adaptive_performance()
+
+
+func _apply_view_culling_settings():
+	# Enable aggressive culling for low-end presets
+	match current_preset:
+		QualityPreset.POTATO, QualityPreset.ULTRA_LOW:
+			ViewCulling.enable_aggressive_culling()
+		_:
+			ViewCulling.disable_aggressive_culling()
+
+
+func _apply_sky_shader_settings():
+	# Find the sky shader and adjust quality based on preset
+	# The atmosphere shader is VERY expensive - 64 samples, 64 cloud marches, 8 light marches
+	# Use call_deferred to avoid issues during rapid setting changes
+	call_deferred("_apply_sky_shader_settings_deferred")
+
+
+func _apply_sky_shader_settings_deferred():
+	var tree = get_tree()
+	if not tree or not tree.current_scene:
+		return
+	
+	# Find WorldEnvironment node - use a safer approach
+	var world_envs = tree.current_scene.find_children("*", "WorldEnvironment", true, false)
+	if world_envs.is_empty():
+		return
+	
+	var world_env: WorldEnvironment = world_envs[0]
+	if not is_instance_valid(world_env):
+		return
+	if not world_env.environment or not world_env.environment.sky:
+		return
+	
+	var sky: Sky = world_env.environment.sky
+	if not sky.sky_material:
+		return
+	
+	var sky_mat = sky.sky_material
+	if not is_instance_valid(sky_mat):
+		return
+	
+	# Get shader quality settings based on preset
+	var atmosphere_samples: int
+	var cloud_marches: int
+	var light_marches: int
+	
+	match current_preset:
+		QualityPreset.POTATO:
+			atmosphere_samples = 16
+			cloud_marches = 8
+			light_marches = 4
+		QualityPreset.ULTRA_LOW:
+			atmosphere_samples = 24
+			cloud_marches = 12
+			light_marches = 4
+		QualityPreset.LOW:
+			atmosphere_samples = 32
+			cloud_marches = 16
+			light_marches = 6
+		QualityPreset.MEDIUM:
+			atmosphere_samples = 48
+			cloud_marches = 32
+			light_marches = 6
+		QualityPreset.HIGH:
+			atmosphere_samples = 64
+			cloud_marches = 48
+			light_marches = 8
+		_:  # ULTRA, PAID_FOR_WHOLE_PC
+			atmosphere_samples = 64
+			cloud_marches = 64
+			light_marches = 8
+	
+	# Apply shader parameters if it's a ShaderMaterial
+	if sky_mat is ShaderMaterial:
+		# Use the correct quality parameter names that the shader actually uses
+		sky_mat.set_shader_parameter("quality_atmosphere_samples", atmosphere_samples)
+		
+		# When clouds disabled, minimize computation
+		if clouds_enabled:
+			sky_mat.set_shader_parameter("quality_cloud_marches", cloud_marches)
+			sky_mat.set_shader_parameter("quality_light_marches", light_marches)
+			sky_mat.set_shader_parameter("coverage", 0.35)  # Default coverage
+			sky_mat.set_shader_parameter("use_cirrus", true)  # Enable cirrus clouds
+		else:
+			# Set coverage to 0 - shader will early-exit and skip cloud raymarching entirely
+			sky_mat.set_shader_parameter("quality_cloud_marches", 1)  # Minimum iterations (fallback)
+			sky_mat.set_shader_parameter("quality_light_marches", 1)  # Minimum iterations (fallback)
+			sky_mat.set_shader_parameter("coverage", 0.0)  # Triggers early-exit in shader
+			sky_mat.set_shader_parameter("use_cirrus", false)  # Disable cirrus clouds
+
 
 func _apply_aa_settings():
 	var viewport = get_viewport()
@@ -560,103 +724,111 @@ func _find_world_environment() -> WorldEnvironment:
 			return world_envs[0]
 	return null
 
-# Individual setting setters
+# Individual setting setters - all use debounced apply to prevent crashes
+# Only switch to Custom if user manually changed setting (not during preset apply)
 func set_msaa_quality(quality: int):
 	msaa_quality = quality
-	_apply_aa_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_taa_enabled(enabled: bool):
 	taa_enabled = enabled
-	_apply_aa_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_screen_space_aa(mode: int):
 	screen_space_aa = mode
-	_apply_aa_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_shadow_quality(quality: int):
 	shadow_quality = quality
-	_apply_shadow_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_scaling_mode(mode: int):
 	scaling_mode = mode
-	_apply_resolution_scale()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_render_scale(scale: float):
-	render_scale = clamp(scale, 0.5, 2.0)
-	_apply_resolution_scale()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	render_scale = clamp(scale, 0.25, 2.0)
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_ssao_enabled(enabled: bool):
 	ssao_enabled = enabled
-	_apply_environment_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_ssil_enabled(enabled: bool):
 	ssil_enabled = enabled
-	_apply_environment_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_ssr_enabled(enabled: bool):
 	ssr_enabled = enabled
-	_apply_environment_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_sdfgi_enabled(enabled: bool):
 	sdfgi_enabled = enabled
-	_apply_environment_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_bloom_enabled(enabled: bool):
 	bloom_enabled = enabled
-	_apply_environment_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_bloom_intensity(intensity: float):
 	bloom_intensity = clamp(intensity, 0.0, 2.0)
-	_apply_environment_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_volumetric_fog_enabled(enabled: bool):
 	volumetric_fog_enabled = enabled
-	_apply_environment_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
+	settings_changed.emit()
+
+func set_clouds_enabled(enabled: bool):
+	clouds_enabled = enabled
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_tonemap_mode(mode: int):
 	tonemap_mode = mode
-	_apply_environment_settings()
-	current_preset = QualityPreset.CUSTOM
-	save_settings()
+	if not _applying_preset:
+		current_preset = QualityPreset.CUSTOM
+	_apply_settings_debounced()
 	settings_changed.emit()
 
 func set_target_fps(fps: int):
@@ -702,6 +874,7 @@ func save_settings():
 	config.set_value("graphics", "bloom_enabled", bloom_enabled)
 	config.set_value("graphics", "bloom_intensity", bloom_intensity)
 	config.set_value("graphics", "volumetric_fog_enabled", volumetric_fog_enabled)
+	config.set_value("graphics", "clouds_enabled", clouds_enabled)
 	config.set_value("graphics", "dof_enabled", dof_enabled)
 	config.set_value("graphics", "motion_blur_enabled", motion_blur_enabled)
 	config.set_value("graphics", "texture_quality", texture_quality)
@@ -742,6 +915,7 @@ func load_settings():
 	bloom_enabled = config.get_value("graphics", "bloom_enabled", true)
 	bloom_intensity = config.get_value("graphics", "bloom_intensity", 0.8)
 	volumetric_fog_enabled = config.get_value("graphics", "volumetric_fog_enabled", true)
+	clouds_enabled = config.get_value("graphics", "clouds_enabled", true)
 	dof_enabled = config.get_value("graphics", "dof_enabled", false)
 	motion_blur_enabled = config.get_value("graphics", "motion_blur_enabled", false)
 	texture_quality = config.get_value("graphics", "texture_quality", 2)

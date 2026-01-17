@@ -1,8 +1,8 @@
 [gd_resource type="ShaderMaterial" load_steps=18 format=3 uid="uid://7wuop4abysij"]
 
 [ext_resource type="Shader" uid="uid://r8odr1qaq8tv" path="res://world/shaders/atmosphere.gdshader" id="1_befvq"]
-[ext_resource type="CompressedCubemap" uid="uid://bs78evs1saajk" path="res://world/assets/cubemaps/stars.hdr" id="2_kqxb2"]
 [ext_resource type="Texture2D" uid="uid://bdvkmjuer3q65" path="res://world/assets/moon/moon.png" id="2_xqwns"]
+[ext_resource type="CompressedCubemap" uid="uid://bs78evs1saajk" path="res://world/assets/cubemaps/stars.hdr" id="3_stars"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_n8vuu"]
 seed = 2
@@ -70,7 +70,11 @@ width = 32
 [resource]
 shader = ExtResource("1_befvq")
 shader_parameter/use_debanding = true
-shader_parameter/atmosphere_sample_count = 32
+shader_parameter/quality_atmosphere_samples = 64
+shader_parameter/quality_cloud_marches = 64
+shader_parameter/quality_light_marches = 8
+shader_parameter/quality_use_cirrus = true
+shader_parameter/quality_use_rainbow = false
 shader_parameter/elevation = 0.0
 shader_parameter/rayleigh_strength = 1.0
 shader_parameter/mie_strength = 1.0
@@ -80,9 +84,9 @@ shader_parameter/atmosphere_density = 1.0
 shader_parameter/exposure = 13.0
 shader_parameter/sun_disc_feather = 0.5
 shader_parameter/sundisc_intensity = 30.0
-shader_parameter/stars_hdr = ExtResource("2_kqxb2")
+shader_parameter/stars_hdr = ExtResource("3_stars")
 shader_parameter/stars_exposure = 6.0
-shader_parameter/stars_rotation = Basis(0.7071068, 0.70561045, 0.045977447, -0.7071068, 0.70561045, 0.045977447, 0, -0.06502193, 0.99788386)
+shader_parameter/stars_rotation = Basis(0.7071068, 0.70688194, -0.017831307, -0.7071068, 0.70688194, -0.017831307, 0, 0.025217278, 0.999682)
 shader_parameter/dim_stars_at_day = true
 shader_parameter/moon_dist = PackedFloat32Array(1000, 2000, 5000, 0)
 shader_parameter/moon_uv_x_offset = PackedFloat32Array(0.62, 0.8, -0.435)
@@ -106,7 +110,7 @@ shader_parameter/density_coeff = 1.5
 shader_parameter/cloud_noise_factor = 0.2
 shader_parameter/cloud_shape = SubResource("NoiseTexture3D_n8vuu")
 shader_parameter/cloud_shape_size = 3.0
-shader_parameter/cloud_shape_offset = Vector3(14.875699, 0, 7.4378495)
+shader_parameter/cloud_shape_offset = Vector3(0, 0, 0)
 shader_parameter/cloud_noise = SubResource("NoiseTexture3D_kqxb2")
 shader_parameter/cloud_noise_size = 12.0
 shader_parameter/cloud_noise_offset = Vector3(0, 0, 0)
@@ -120,7 +124,7 @@ shader_parameter/cirrus_squish = Vector2(4, 1)
 shader_parameter/cirrus_scale = 0.2
 shader_parameter/cirrus_treshold = 0.8
 shader_parameter/cirrus_feather = 0.25
-shader_parameter/cirrus_offset = Vector2(3.718925, 2.231355)
+shader_parameter/cirrus_offset = Vector2(0, 0)
 shader_parameter/cirrus_distortion_texture = SubResource("NoiseTexture2D_cr3qf")
 shader_parameter/cirrus_distortion_scale = 0.04
 shader_parameter/cirrus_distortion_strength = 0.4

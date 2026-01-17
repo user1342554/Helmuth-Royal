@@ -13,10 +13,16 @@ const float MIE_HEIGHT = (ATMOSPHERE_HEIGHT * 0.012);
 
 uniform bool use_debanding = true;
 
+// QUALITY SETTINGS (controlled by GraphicsSettings)
+group_uniforms Quality;
+uniform int quality_atmosphere_samples : hint_range(8, 96, 8) = 64;  // Atmosphere raymarching samples
+uniform int quality_cloud_marches : hint_range(4, 64, 4) = 64;       // Cloud raymarching steps
+uniform int quality_light_marches : hint_range(2, 32, 2) = 8;        // Light scattering samples
+uniform bool quality_use_cirrus = true;                               // Enable cirrus clouds
+uniform bool quality_use_rainbow = false;                             // Enable rainbow effect
+
 // ATMOSPHERE UNIFORMS
 group_uniforms Atmosphere;
-uniform int atmosphere_sample_count = 64;
-
 uniform float elevation = 0.0;
 
 uniform float rayleigh_strength : hint_range(0.0, 5.0) = 1.0;
@@ -232,9 +238,9 @@ vec3 integrate_scattering (vec3 rayStart, vec3 rayDir, float rayLength, vec3 lig
 
 	float  prevRayTime  = 0.0;
 
-	for (int i = 0; i < atmosphere_sample_count; i++)
+	for (int i = 0; i < quality_atmosphere_samples; i++)
 	{
-		float  rayTime = pow(float(i) / float(atmosphere_sample_count), sampleDistributionExponent) * rayLength;
+		float  rayTime = pow(float(i) / float(quality_atmosphere_samples), sampleDistributionExponent) * rayLength;
 		float  stepSize = (rayTime - prevRayTime);
 
 		vec3 localPosition = rayStart + rayDir * rayTime;
@@ -448,17 +454,23 @@ vec3 jitter_ray_origin(vec3 origin, vec3 direction, vec2 noise_sample, float amo
 
 void sky() {
 	if (AT_CUBEMAP_PASS) {
+		// Use actual light color and energy for accurate reflection colors
+		// This ensures reflections match the sky's current lighting conditions
+		vec3 light_color = LIGHT0_COLOR * max(LIGHT0_ENERGY, 0.1);
 		vec3 transmittance;
-		COLOR = integrate_scattering(vec3(0.0, elevation, 0.0), EYEDIR, INFINITY, LIGHT0_DIRECTION, vec3(1.0, 0.996, 0.98), transmittance);
+		COLOR = integrate_scattering(vec3(0.0, elevation, 0.0), EYEDIR, INFINITY, LIGHT0_DIRECTION, light_color, transmittance);
 	} else if (AT_QUARTER_RES_PASS) {
+		// Use actual light color for consistent transmittance calculation
+		vec3 light_color = LIGHT0_COLOR * max(LIGHT0_ENERGY, 0.1);
 		vec3 transmittance;
-		integrate_scattering(vec3(0.0, elevation, 0.0), EYEDIR, INFINITY, LIGHT0_DIRECTION, vec3(1.0, 0.996, 0.98), transmittance);
+		integrate_scattering(vec3(0.0, elevation, 0.0), EYEDIR, INFINITY, LIGHT0_DIRECTION, light_color, transmittance);
 		COLOR = transmittance;
 	} else if (AT_HALF_RES_PASS) {
 		COLOR = vec3(0.0);
 		ALPHA = 0.0;
 
-		if (EYEDIR.y > 0.0) {
+		// Early-exit: skip expensive cloud raymarching when coverage is 0 (clouds disabled)
+		if (EYEDIR.y > 0.0 && coverage > 0.001) {
 			vec3 lower_plane_point = EYEDIR * (LOWER_PLANE_HEIGHT / EYEDIR.y);
 
 			vec4 clouds = ray_march_clouds(

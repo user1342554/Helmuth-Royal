@@ -1,0 +1,519 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8xymenu001"]
+
+[ext_resource type="Script" path="res://scenes/ui/escape_menu.gd" id="1_menu"]
+
+[node name="EscapeMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainPanel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/MainPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/MainPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="CenterContainer/MainPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="CenterContainer/MainPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="ResumeButton" type="Button" parent="CenterContainer/MainPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+text = "Resume"
+
+[node name="SettingsButton" type="Button" parent="CenterContainer/MainPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+text = "Settings"
+
+[node name="LeaveButton" type="Button" parent="CenterContainer/MainPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+text = "Leave Game"
+
+[node name="SettingsPanel" type="PanelContainer" parent="CenterContainer"]
+visible = false
+custom_minimum_size = Vector2(550, 500)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/SettingsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Header" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Settings"
+
+[node name="BackButton" type="Button" parent="CenterContainer/SettingsPanel/Margin/VBox/Header"]
+custom_minimum_size = Vector2(80, 35)
+layout_mode = 2
+text = "Back"
+
+[node name="Separator" type="HSeparator" parent="CenterContainer/SettingsPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="SettingsTabs" type="TabContainer" parent="CenterContainer/SettingsPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+tab_alignment = 1
+
+[node name="Video" type="MarginContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="Content" type="VBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="ResolutionContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content"]
+layout_mode = 2
+
+[node name="ResolutionLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/ResolutionContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Resolution"
+
+[node name="ResolutionOption" type="OptionButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/ResolutionContainer"]
+custom_minimum_size = Vector2(200, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WindowModeContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content"]
+layout_mode = 2
+
+[node name="WindowModeLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/WindowModeContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Window Mode"
+
+[node name="WindowModeOption" type="OptionButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/WindowModeContainer"]
+custom_minimum_size = Vector2(200, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VSyncContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content"]
+layout_mode = 2
+
+[node name="VSyncLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/VSyncContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "VSync"
+
+[node name="VSyncCheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/VSyncContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SensitivityContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content"]
+layout_mode = 2
+
+[node name="SensitivityLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/SensitivityContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Mouse Sensitivity"
+
+[node name="SensitivitySlider" type="HSlider" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/SensitivityContainer"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.1
+max_value = 3.0
+step = 0.05
+value = 1.0
+
+[node name="SensitivityValue" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/SensitivityContainer"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "1.00"
+horizontal_alignment = 2
+
+[node name="FPSCounterContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content"]
+layout_mode = 2
+
+[node name="FPSCounterLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/FPSCounterContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Show FPS"
+
+[node name="FPSCounterCheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/FPSCounterContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Graphics" type="MarginContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="PresetContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="PresetLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/PresetContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Quality Preset"
+
+[node name="PresetOption" type="OptionButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/PresetContainer"]
+custom_minimum_size = Vector2(200, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Separator1" type="HSeparator" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="RenderScaleContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="RenderScaleLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/RenderScaleContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Render Scale"
+
+[node name="RenderScaleSlider" type="HSlider" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/RenderScaleContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.25
+max_value = 2.0
+step = 0.05
+value = 1.0
+
+[node name="RenderScaleValue" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/RenderScaleContainer"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="ShadowQualityContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="ShadowQualityLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/ShadowQualityContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Shadow Quality"
+
+[node name="ShadowQualityOption" type="OptionButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/ShadowQualityContainer"]
+custom_minimum_size = Vector2(150, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MSAAContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="MSAALabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/MSAAContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "MSAA"
+
+[node name="MSAAOption" type="OptionButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/MSAAContainer"]
+custom_minimum_size = Vector2(150, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Separator2" type="HSeparator" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="EffectsLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Effects"
+
+[node name="TAAContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="TAALabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/TAAContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "TAA"
+
+[node name="TAACheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/TAAContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SSAOContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="SSAOLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SSAOContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "SSAO"
+
+[node name="SSAOCheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SSAOContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SSRContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="SSRLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SSRContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "SSR"
+
+[node name="SSRCheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SSRContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BloomContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="BloomLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/BloomContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Bloom"
+
+[node name="BloomCheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/BloomContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SDFGIContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="SDFGILabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SDFGIContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "SDFGI"
+
+[node name="SDFGICheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SDFGIContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VolumetricFogContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="VolumetricFogLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/VolumetricFogContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Volumetric Fog"
+
+[node name="VolumetricFogCheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/VolumetricFogContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloudsContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="CloudsLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/CloudsContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Clouds"
+
+[node name="CloudsCheck" type="CheckButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/CloudsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Audio" type="MarginContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="Content" type="VBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="OutputDeviceContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+layout_mode = 2
+
+[node name="OutputDeviceLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/OutputDeviceContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Output Device"
+
+[node name="OutputDeviceOption" type="OptionButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/OutputDeviceContainer"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="InputDeviceContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+layout_mode = 2
+
+[node name="InputDeviceLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/InputDeviceContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Microphone"
+
+[node name="InputDeviceOption" type="OptionButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/InputDeviceContainer"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MasterVolumeContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+layout_mode = 2
+
+[node name="MasterVolumeLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/MasterVolumeContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Master Volume"
+
+[node name="MasterVolumeSlider" type="HSlider" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/MasterVolumeContainer"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="MasterVolumeValue" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/MasterVolumeContainer"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="VoiceSeparator" type="HSeparator" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+layout_mode = 2
+
+[node name="VoiceLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Voice Chat"
+
+[node name="BitrateContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+layout_mode = 2
+
+[node name="BitrateLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/BitrateContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Voice Quality"
+
+[node name="BitrateOption" type="OptionButton" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/BitrateContainer"]
+custom_minimum_size = Vector2(180, 35)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BufferContainer" type="HBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+layout_mode = 2
+
+[node name="BufferLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/BufferContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Buffer Size"
+
+[node name="BufferSlider" type="HSlider" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/BufferContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 3.0
+max_value = 30.0
+step = 1.0
+value = 10.0
+
+[node name="BufferValue" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/BufferContainer"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "200ms"
+horizontal_alignment = 2
+
+[node name="TestVoiceButton" type="Button" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Test Microphone"
+
+[node name="LoopbackStatsLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Queue: 0 (0ms latency)"
+
+[node name="AudioInfoContainer" type="VBoxContainer" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content"]
+layout_mode = 2
+
+[node name="Separator" type="HSeparator" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/AudioInfoContainer"]
+layout_mode = 2
+
+[node name="AudioInfoLabel" type="Label" parent="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/AudioInfoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Sample Rate: 48000 Hz"
+
+[connection signal="pressed" from="CenterContainer/MainPanel/Margin/VBox/ResumeButton" to="." method="_on_resume_pressed"]
+[connection signal="pressed" from="CenterContainer/MainPanel/Margin/VBox/SettingsButton" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="CenterContainer/MainPanel/Margin/VBox/LeaveButton" to="." method="_on_leave_pressed"]
+[connection signal="pressed" from="CenterContainer/SettingsPanel/Margin/VBox/Header/BackButton" to="." method="_on_settings_back_pressed"]
+[connection signal="item_selected" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/ResolutionContainer/ResolutionOption" to="." method="_on_resolution_selected"]
+[connection signal="item_selected" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/WindowModeContainer/WindowModeOption" to="." method="_on_window_mode_selected"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/VSyncContainer/VSyncCheck" to="." method="_on_vsync_toggled"]
+[connection signal="value_changed" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/SensitivityContainer/SensitivitySlider" to="." method="_on_sensitivity_changed"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Video/Content/FPSCounterContainer/FPSCounterCheck" to="." method="_on_fps_counter_toggled"]
+[connection signal="item_selected" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/OutputDeviceContainer/OutputDeviceOption" to="." method="_on_output_device_selected"]
+[connection signal="item_selected" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/InputDeviceContainer/InputDeviceOption" to="." method="_on_input_device_selected"]
+[connection signal="value_changed" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/MasterVolumeContainer/MasterVolumeSlider" to="." method="_on_master_volume_changed"]
+[connection signal="item_selected" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/BitrateContainer/BitrateOption" to="." method="_on_bitrate_selected"]
+[connection signal="value_changed" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/BufferContainer/BufferSlider" to="." method="_on_buffer_changed"]
+[connection signal="pressed" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Audio/Content/TestVoiceButton" to="." method="_on_test_voice_pressed"]
+[connection signal="item_selected" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/PresetContainer/PresetOption" to="." method="_on_preset_selected"]
+[connection signal="value_changed" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/RenderScaleContainer/RenderScaleSlider" to="." method="_on_render_scale_changed"]
+[connection signal="item_selected" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/ShadowQualityContainer/ShadowQualityOption" to="." method="_on_shadow_quality_selected"]
+[connection signal="item_selected" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/MSAAContainer/MSAAOption" to="." method="_on_msaa_selected"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/TAAContainer/TAACheck" to="." method="_on_taa_toggled"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SSAOContainer/SSAOCheck" to="." method="_on_ssao_toggled"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SSRContainer/SSRCheck" to="." method="_on_ssr_toggled"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/BloomContainer/BloomCheck" to="." method="_on_bloom_toggled"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/SDFGIContainer/SDFGICheck" to="." method="_on_sdfgi_toggled"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/VolumetricFogContainer/VolumetricFogCheck" to="." method="_on_volumetric_fog_toggled"]
+[connection signal="toggled" from="CenterContainer/SettingsPanel/Margin/VBox/SettingsTabs/Graphics/ScrollContainer/Content/CloudsContainer/CloudsCheck" to="." method="_on_clouds_toggled"]

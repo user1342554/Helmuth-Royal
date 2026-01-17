@@ -1,0 +1,559 @@
+[gd_scene load_steps=2 format=3 uid="uid://bq3x8kv7tqxfj"]
+
+[ext_resource type="Script" uid="uid://c6tfs0tfpsbr1" path="res://scenes/main_menu/main_menu.gd" id="1_menu"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.08, 0.12, 1)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -250.0
+offset_right = 200.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Helmuth Royal"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 16
+text = "Alpha Beta Gamma "
+horizontal_alignment = 1
+
+[node name="SteamStatus" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.8, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "Steam: Connected"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="MainButtons" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HostButton" type="Button" parent="VBox/MainButtons"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Host Game"
+
+[node name="BrowseButton" type="Button" parent="VBox/MainButtons"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Browse Games"
+
+[node name="LANButton" type="Button" parent="VBox/MainButtons"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "LAN Game"
+
+[node name="QuitButton" type="Button" parent="VBox/MainButtons"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Quit"
+
+[node name="HostPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -180.0
+offset_right = 220.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="HostPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="HostPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="HostPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Host Game"
+horizontal_alignment = 1
+
+[node name="LobbyNameContainer" type="HBoxContainer" parent="HostPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="LobbyNameLabel" type="Label" parent="HostPanel/Margin/VBox/LobbyNameContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Lobby Name:"
+
+[node name="LobbyNameEdit" type="LineEdit" parent="HostPanel/Margin/VBox/LobbyNameContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "(uses Steam name)"
+
+[node name="MaxPlayersContainer" type="HBoxContainer" parent="HostPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="MaxPlayersLabel" type="Label" parent="HostPanel/Margin/VBox/MaxPlayersContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Max Players:"
+
+[node name="MaxPlayersSpin" type="SpinBox" parent="HostPanel/Margin/VBox/MaxPlayersContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 2.0
+max_value = 30.0
+value = 20.0
+
+[node name="ButtonContainer" type="HBoxContainer" parent="HostPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BackButton" type="Button" parent="HostPanel/Margin/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back"
+
+[node name="StartHostButton" type="Button" parent="HostPanel/Margin/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Create Lobby"
+
+[node name="StatusPanel" type="PanelContainer" parent="HostPanel/Margin/VBox"]
+visible = false
+layout_mode = 2
+
+[node name="StatusVBox" type="VBoxContainer" parent="HostPanel/Margin/VBox/StatusPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StatusLabel" type="Label" parent="HostPanel/Margin/VBox/StatusPanel/StatusVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "Lobby created!"
+horizontal_alignment = 1
+
+[node name="LobbyInfoLabel" type="Label" parent="HostPanel/Margin/VBox/StatusPanel/StatusVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Waiting for players..."
+horizontal_alignment = 1
+
+[node name="PlayerCountLabel" type="Label" parent="HostPanel/Margin/VBox/StatusPanel/StatusVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Players: 1/20"
+horizontal_alignment = 1
+
+[node name="StartGameButton" type="Button" parent="HostPanel/Margin/VBox/StatusPanel/StatusVBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Start Game"
+
+[node name="StopButton" type="Button" parent="HostPanel/Margin/VBox/StatusPanel/StatusVBox"]
+layout_mode = 2
+text = "Close Lobby"
+
+[node name="BrowsePanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="BrowsePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="BrowsePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderBox" type="HBoxContainer" parent="BrowsePanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="BrowsePanel/Margin/VBox/HeaderBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Browse Games"
+
+[node name="RefreshButton" type="Button" parent="BrowsePanel/Margin/VBox/HeaderBox"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Refresh"
+
+[node name="ListHeader" type="HBoxContainer" parent="BrowsePanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="NameHeader" type="Label" parent="BrowsePanel/Margin/VBox/ListHeader"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "LOBBY NAME"
+
+[node name="HostHeader" type="Label" parent="BrowsePanel/Margin/VBox/ListHeader"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "HOST"
+
+[node name="PlayersHeader" type="Label" parent="BrowsePanel/Margin/VBox/ListHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "PLAYERS"
+horizontal_alignment = 2
+
+[node name="LobbyScrollContainer" type="ScrollContainer" parent="BrowsePanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 280)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LobbyList" type="VBoxContainer" parent="BrowsePanel/Margin/VBox/LobbyScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="NoLobbiesLabel" type="Label" parent="BrowsePanel/Margin/VBox/LobbyScrollContainer/LobbyList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "No games found. Click Refresh to search."
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="BrowsePanel/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "Connecting..."
+horizontal_alignment = 1
+
+[node name="ButtonContainer" type="HBoxContainer" parent="BrowsePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BrowseBackButton" type="Button" parent="BrowsePanel/Margin/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back"
+
+[node name="JoinButton" type="Button" parent="BrowsePanel/Margin/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Join"
+
+[node name="LANPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -220.0
+offset_right = 250.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="LANPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="LANPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="LANPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "LAN Game"
+horizontal_alignment = 1
+
+[node name="LocalIPContainer" type="HBoxContainer" parent="LANPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="LocalIPLabel" type="Label" parent="LANPanel/Margin/VBox/LocalIPContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Your IP:"
+
+[node name="LocalIPValue" type="Label" parent="LANPanel/Margin/VBox/LocalIPContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.9, 0.4, 1)
+text = "127.0.0.1"
+
+[node name="Separator1" type="HSeparator" parent="LANPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HostSection" type="VBoxContainer" parent="LANPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HostLabel" type="Label" parent="LANPanel/Margin/VBox/HostSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Host a LAN Game"
+
+[node name="PortContainer" type="HBoxContainer" parent="LANPanel/Margin/VBox/HostSection"]
+layout_mode = 2
+
+[node name="PortLabel" type="Label" parent="LANPanel/Margin/VBox/HostSection/PortContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Port:"
+
+[node name="HostPortSpin" type="SpinBox" parent="LANPanel/Margin/VBox/HostSection/PortContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1024.0
+max_value = 65535.0
+value = 7777.0
+
+[node name="HostLANButton" type="Button" parent="LANPanel/Margin/VBox/HostSection"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Host LAN"
+
+[node name="Separator2" type="HSeparator" parent="LANPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="JoinSection" type="VBoxContainer" parent="LANPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="JoinLabel" type="Label" parent="LANPanel/Margin/VBox/JoinSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Join a LAN Game"
+
+[node name="IPContainer" type="HBoxContainer" parent="LANPanel/Margin/VBox/JoinSection"]
+layout_mode = 2
+
+[node name="IPLabel" type="Label" parent="LANPanel/Margin/VBox/JoinSection/IPContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "IP Address:"
+
+[node name="JoinIPEdit" type="LineEdit" parent="LANPanel/Margin/VBox/JoinSection/IPContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "192.168.1.100"
+
+[node name="JoinPortContainer" type="HBoxContainer" parent="LANPanel/Margin/VBox/JoinSection"]
+layout_mode = 2
+
+[node name="JoinPortLabel" type="Label" parent="LANPanel/Margin/VBox/JoinSection/JoinPortContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Port:"
+
+[node name="JoinPortSpin" type="SpinBox" parent="LANPanel/Margin/VBox/JoinSection/JoinPortContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1024.0
+max_value = 65535.0
+value = 7777.0
+
+[node name="JoinLANButton" type="Button" parent="LANPanel/Margin/VBox/JoinSection"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Join LAN"
+
+[node name="LANStatusLabel" type="Label" parent="LANPanel/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "Status..."
+horizontal_alignment = 1
+
+[node name="LANBackButton" type="Button" parent="LANPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Back"
+
+[node name="LANHostStatusPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="LANHostStatusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="LANHostStatusPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="LANHostStatusPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "LAN Server Active"
+horizontal_alignment = 1
+
+[node name="IPInfoLabel" type="Label" parent="LANHostStatusPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 0.4, 1)
+text = "IP: 127.0.0.1:7777"
+horizontal_alignment = 1
+
+[node name="LANPlayerCountLabel" type="Label" parent="LANHostStatusPanel/Margin/VBox"]
+layout_mode = 2
+text = "Players: 1/20"
+horizontal_alignment = 1
+
+[node name="StartLANGameButton" type="Button" parent="LANHostStatusPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Start Game"
+
+[node name="StopLANButton" type="Button" parent="LANHostStatusPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+text = "Close Server"
+
+[node name="LANWaitingPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -100.0
+offset_right = 180.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="LANWaitingPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="LANWaitingPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="LANWaitingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Connected!"
+horizontal_alignment = 1
+
+[node name="WaitingLabel" type="Label" parent="LANWaitingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.4, 1)
+text = "Waiting for host to start..."
+horizontal_alignment = 1
+
+[node name="WaitingPlayerCount" type="Label" parent="LANWaitingPanel/Margin/VBox"]
+layout_mode = 2
+text = "Players: 2"
+horizontal_alignment = 1
+
+[node name="LeaveWaitingButton" type="Button" parent="LANWaitingPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Leave"
+
+[connection signal="pressed" from="VBox/MainButtons/HostButton" to="." method="_on_host_button_pressed"]
+[connection signal="pressed" from="VBox/MainButtons/BrowseButton" to="." method="_on_browse_button_pressed"]
+[connection signal="pressed" from="VBox/MainButtons/LANButton" to="." method="_on_lan_button_pressed"]
+[connection signal="pressed" from="VBox/MainButtons/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="HostPanel/Margin/VBox/ButtonContainer/BackButton" to="." method="_on_host_back_pressed"]
+[connection signal="pressed" from="HostPanel/Margin/VBox/ButtonContainer/StartHostButton" to="." method="_on_start_host_pressed"]
+[connection signal="pressed" from="HostPanel/Margin/VBox/StatusPanel/StatusVBox/StartGameButton" to="." method="_on_start_game_pressed"]
+[connection signal="pressed" from="HostPanel/Margin/VBox/StatusPanel/StatusVBox/StopButton" to="." method="_on_stop_host_pressed"]
+[connection signal="pressed" from="BrowsePanel/Margin/VBox/HeaderBox/RefreshButton" to="." method="_on_refresh_pressed"]
+[connection signal="pressed" from="BrowsePanel/Margin/VBox/ButtonContainer/BrowseBackButton" to="." method="_on_browse_back_pressed"]
+[connection signal="pressed" from="BrowsePanel/Margin/VBox/ButtonContainer/JoinButton" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="LANPanel/Margin/VBox/HostSection/HostLANButton" to="." method="_on_host_lan_pressed"]
+[connection signal="pressed" from="LANPanel/Margin/VBox/JoinSection/JoinLANButton" to="." method="_on_join_lan_pressed"]
+[connection signal="pressed" from="LANPanel/Margin/VBox/LANBackButton" to="." method="_on_lan_back_pressed"]
+[connection signal="pressed" from="LANHostStatusPanel/Margin/VBox/StartLANGameButton" to="." method="_on_start_lan_game_pressed"]
+[connection signal="pressed" from="LANHostStatusPanel/Margin/VBox/StopLANButton" to="." method="_on_stop_lan_pressed"]
+[connection signal="pressed" from="LANWaitingPanel/Margin/VBox/LeaveWaitingButton" to="." method="_on_leave_waiting_pressed"]

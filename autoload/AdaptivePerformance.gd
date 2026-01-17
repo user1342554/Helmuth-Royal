@@ -19,6 +19,9 @@ enum AdjustmentLevel {
 }
 
 func _ready():
+	# Connect to PerformanceMonitor signals for immediate response to critical FPS drops
+	PerformanceMonitor.performance_warning.connect(_on_performance_warning)
+	PerformanceMonitor.performance_critical.connect(_on_performance_critical)
 	print("AdaptivePerformance initialized")
 
 func _process(delta):
@@ -40,6 +43,32 @@ func enable_adaptive_performance(target: int = 60):
 func disable_adaptive_performance():
 	enabled = false
 	print("Adaptive Performance disabled")
+
+
+func _on_performance_warning(message: String):
+	# Warning signal - FPS dropped below 45
+	if not enabled:
+		return
+	
+	# Skip if we're in cooldown
+	if _adjustment_cooldown > 0:
+		return
+	
+	print("AdaptivePerformance: %s - applying minor reduction" % message)
+	_apply_minor_reduction()
+	_adjustment_cooldown = _cooldown_duration
+
+
+func _on_performance_critical(message: String):
+	# Critical signal - FPS dropped below 30, respond immediately
+	if not enabled:
+		return
+	
+	# Override cooldown for critical situations
+	print("AdaptivePerformance: CRITICAL - %s - applying major reduction" % message)
+	_apply_major_reduction()
+	_adjustment_cooldown = _cooldown_duration * 2  # Longer cooldown after major change
+
 
 func _check_and_adjust_performance():
 	var avg_fps = PerformanceMonitor.get_average_fps()
@@ -76,13 +105,13 @@ func _apply_major_reduction():
 	print("Adaptive: Applying MAJOR quality reduction")
 	
 	# Reduce resolution scale significantly
-	var current_scale = GraphicsSettings.ssaa_scale
-	GraphicsSettings.set_resolution_scale(max(current_scale - 0.15, 0.5))
+	var current_scale = GraphicsSettings.render_scale
+	GraphicsSettings.set_render_scale(max(current_scale - 0.15, 0.5))
 	
 	# Disable expensive features
 	GraphicsSettings.ssao_enabled = false
 	GraphicsSettings.ssr_enabled = false
-	GraphicsSettings.glow_enabled = false
+	GraphicsSettings.bloom_enabled = false
 	GraphicsSettings.shadow_quality = max(GraphicsSettings.shadow_quality - 1, 0)
 	
 	GraphicsSettings._apply_all_settings()
@@ -91,8 +120,8 @@ func _apply_moderate_reduction():
 	print("Adaptive: Applying MODERATE quality reduction")
 	
 	# Reduce resolution scale
-	var current_scale = GraphicsSettings.ssaa_scale
-	GraphicsSettings.set_resolution_scale(max(current_scale - 0.1, 0.6))
+	var current_scale = GraphicsSettings.render_scale
+	GraphicsSettings.set_render_scale(max(current_scale - 0.1, 0.6))
 	
 	# Reduce shadow quality
 	if GraphicsSettings.shadow_quality > 0:
@@ -108,21 +137,21 @@ func _apply_minor_reduction():
 	elif GraphicsSettings.ssao_enabled:
 		GraphicsSettings.ssao_enabled = false
 		GraphicsSettings._apply_all_settings()
-	elif GraphicsSettings.glow_enabled:
-		GraphicsSettings.glow_enabled = false
+	elif GraphicsSettings.bloom_enabled:
+		GraphicsSettings.bloom_enabled = false
 		GraphicsSettings._apply_all_settings()
 
 func _apply_minor_increase():
 	print("Adaptive: Applying MINOR quality increase")
 	
 	# Try to re-enable effects
-	if not GraphicsSettings.glow_enabled:
-		GraphicsSettings.glow_enabled = true
+	if not GraphicsSettings.bloom_enabled:
+		GraphicsSettings.bloom_enabled = true
 		GraphicsSettings._apply_all_settings()
 	elif not GraphicsSettings.ssao_enabled and GraphicsSettings.shadow_quality >= 1:
 		GraphicsSettings.ssao_enabled = true
 		GraphicsSettings._apply_all_settings()
-	elif GraphicsSettings.ssaa_scale < 1.0:
+	elif GraphicsSettings.render_scale < 1.0:
 		# Increase resolution scale slightly
-		GraphicsSettings.set_resolution_scale(min(GraphicsSettings.ssaa_scale + 0.05, 1.0))
+		GraphicsSettings.set_render_scale(min(GraphicsSettings.render_scale + 0.05, 1.0))
 

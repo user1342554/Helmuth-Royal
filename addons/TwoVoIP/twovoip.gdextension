@@ -3,7 +3,6 @@
 entry_symbol = "two_voip_library_init"
 compatibility_minimum = "4.1.4"
 reloadable = false
-; TEMPORARILY DISABLED due to registration errors
 
 [dependencies]
 

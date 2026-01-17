@@ -1,10 +1,10 @@
 @tool
 extends Node
 
-@export_range(0.0, 1.0) var time_of_day := 0.5
+@export_range(0.0, 1.0) var time_of_day := 10  # 0.25 = midday
 @export_range(-90.0, 90.0, 1.0) var latitude := 45.0
 
-@export var auto_cycle := true  # Automatischer Tag/Nacht-Zyklus
+@export var auto_cycle := false  # Automatischer Tag/Nacht-Zyklus (disabled - always day)
 @export var cycle_speed := 0.01  # Geschwindigkeit des Zyklus (niedriger = langsamer)
 
 @export var sky_material: ShaderMaterial = preload("res://world/materials/SkyMaterial.tres")
