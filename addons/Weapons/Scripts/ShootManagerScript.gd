@@ -1,73 +1,201 @@
 extends Node3D
+## ShootManager - Handles shooting logic with server-authoritative damage
+## Local effects are played immediately for responsiveness
+## Hit detection is done by the server via CombatManager
 
-var cW #current weapon
-var pointOfCollision : Vector3 = Vector3.ZERO
-var rng : RandomNumberGenerator
+var cW  # Current weapon
+var rng: RandomNumberGenerator
 
-@onready var weaponManager : Node3D = %WeaponManager #weapon manager
+@onready var weaponManager: Node3D = get_parent()  # WeaponManager is parent
 
-func getCurrentWeapon(currWeap):
-	#get current weapon resources
+
+func getCurrentWeapon(currWeap) -> void:
 	cW = currWeap
+
+
+func shoot() -> void:
+	if cW == null:
+		return
 	
-func shoot():
-	if !cW.isShooting and (
-	#magazine isn't empty, and has >= ammo than the number of projectiles required for a shot
-	(cW.totalAmmoInMag > 0 and cW.totalAmmoInMag >= cW.nbProjShotsAtSameTime)
-	or 
-	#has all ammos in the magazine, and number of ammo is positive
-	(cW.allAmmoInMag and weaponManager.ammoManager.ammoDict[cW.ammoType] > 0 and
-	#has >= ammo than the number of projectiles required for a shot
-	weaponManager.ammoManager.ammoDict[cW.ammoType] >= cW.nbProjShotsAtSameTime)
-	) and !cW.isReloading:
-		cW.isShooting = true
-		
-		#number of successive shots (for example if 3, the weapon will shot 3 times in a row)
-		for i in range(cW.nbProjShots):
-			#same conditions has before, are checked before every shot
-			if ((cW.totalAmmoInMag > 0 and cW.totalAmmoInMag >= cW.nbProjShotsAtSameTime) 
-			or (cW.allAmmoInMag and weaponManager.ammoManager.ammoDict[cW.ammoType] > 0) and 
-			weaponManager.ammoManager.ammoDict[cW.ammoType] >= cW.nbProjShotsAtSameTime):
-				
-				weaponManager.weaponSoundManagement(cW.shootSound, cW.shootSoundSpeed)
-				
-				if cW.shootAnimName != "":
-					weaponManager.animManager.playAnimation("ShootAnim%s" % cW.weaponName, cW.shootAnimSpeed, true)
-				else:
-					print("%s doesn't have a shoot animation" % cW.weaponName)
-					
-				#number projectiles shots at the same time (for example, 
-				#a shotgun shell is constituted of ~ 20 pellets that are spread across the target, 
-				#so 20 projectiles shots at the same time)
-				for j in range(0, cW.nbProjShotsAtSameTime):
-					if cW.allAmmoInMag: weaponManager.ammoManager.ammoDict[cW.ammoType] -= 1
-					else: cW.totalAmmoInMag -= 1
-						
-					#get the collision point
-					pointOfCollision = getCameraPOV()
-					
-					#call the fonction corresponding to the selected type
-					if cW.type == cW.types.HITSCAN: hitscanShot(pointOfCollision)
-					elif cW.type == cW.types.PROJECTILE: projectileShot(pointOfCollision)
-					
-				if cW.showMuzzleFlash: weaponManager.displayMuzzleFlash()
-				
-				weaponManager.cameraRecoilHolder.setRecoilValues(cW.baseRotSpeed, cW.targetRotSpeed)
-				weaponManager.cameraRecoilHolder.addRecoil(cW.recoilVal)
-				
-				await get_tree().create_timer(cW.timeBetweenShots).timeout
-				
-			else:
-				print("Not enought ammunitions to shoot")
-				
-		cW.isShooting = false
-		
-func getCameraPOV():  
-	var camera : Camera3D = %Camera
-	var window : Window = get_window()
-	var viewport : Vector2i
+	if not _can_shoot():
+		return
 	
-	#match viewport to window size, to ensure that the raycast goes in the right direction
+	cW.isShooting = true
+	
+	# Number of successive shots (burst fire)
+	for i in range(cW.nbProjShots):
+		if not _has_ammo():
+			break
+		
+		# Consume ammo locally
+		_consume_ammo()
+		
+		# Play local effects immediately for responsiveness
+		_play_local_effects()
+		
+		# Get aim direction from camera
+		var camera: Camera3D = weaponManager.camera
+		if camera:
+			var aim_direction: Vector3 = -camera.global_transform.basis.z
+			
+			# Send fire request to server (server will do hit detection)
+			# Only send direction - server computes origin from server-side player position
+			if cW.type == cW.types.HITSCAN:
+				CombatManager.request_fire(cW.weaponId, aim_direction)
+			elif cW.type == cW.types.PROJECTILE:
+				# For projectiles, spawn locally but server should validate hits
+				_spawn_projectile(aim_direction)
+		
+		# Wait between shots
+		await get_tree().create_timer(cW.timeBetweenShots).timeout
+	
+	cW.isShooting = false
+
+
+func _can_shoot() -> bool:
+	if cW.isShooting:
+		return false
+	if cW.isReloading:
+		return false
+	if not _has_ammo():
+		return false
+	return true
+
+
+func _has_ammo() -> bool:
+	if cW.allAmmoInMag:
+		return weaponManager.ammoManager.ammoDict[cW.ammoType] >= cW.nbProjShotsAtSameTime
+	return cW.totalAmmoInMag >= cW.nbProjShotsAtSameTime
+
+
+func _consume_ammo() -> void:
+	for j in range(cW.nbProjShotsAtSameTime):
+		if cW.allAmmoInMag:
+			weaponManager.ammoManager.ammoDict[cW.ammoType] -= 1
+		else:
+			cW.totalAmmoInMag -= 1
+
+
+func _play_local_effects() -> void:
+	# Sound
+	if cW.shootSound:
+		weaponManager.weaponSoundManagement(cW.shootSound, cW.shootSoundSpeed)
+	
+	# Animation
+	if cW.shootAnimName != "":
+		weaponManager.animManager.playAnimation("ShootAnim%s" % cW.weaponName, cW.shootAnimSpeed, true)
+	
+	# Muzzle flash
+	if cW.showMuzzleFlash:
+		weaponManager.displayMuzzleFlash()
+	
+	# Camera recoil (if available)
+	if weaponManager.cameraRecoilHolder and weaponManager.cameraRecoilHolder.has_method("setRecoilValues"):
+		weaponManager.cameraRecoilHolder.setRecoilValues(cW.baseRotSpeed, cW.targetRotSpeed)
+		weaponManager.cameraRecoilHolder.addRecoil(cW.recoilVal)
+	
+	# Local raycast for visual effects (bullet decals) - damage is handled by server
+	if cW.type == cW.types.HITSCAN:
+		_spawn_local_bullet_decal()
+
+
+func _spawn_projectile(aim_direction: Vector3) -> void:
+	# Projectile weapons still spawn locally for visual feedback
+	if cW.projRef == null:
+		return
+	
+	rng = RandomNumberGenerator.new()
+	
+	# Apply spread
+	var spread := Vector3(
+		rng.randf_range(cW.minSpread, cW.maxSpread),
+		rng.randf_range(cW.minSpread, cW.maxSpread),
+		rng.randf_range(cW.minSpread, cW.maxSpread)
+	)
+	var projectile_direction: Vector3 = (aim_direction + spread).normalized()
+	
+	# Instantiate projectile
+	var proj_instance = cW.projRef.instantiate()
+	
+	# Set projectile properties
+	proj_instance.global_transform = cW.weaponSlot.attackPoint.global_transform
+	proj_instance.direction = projectile_direction
+	proj_instance.damage = cW.damagePerProj
+	proj_instance.timeBeforeVanish = cW.projTimeBeforeVanish
+	proj_instance.gravity_scale = cW.projGravityVal
+	proj_instance.isExplosive = cW.isProjExplosive
+	
+	# Pass shooter ID for damage attribution
+	var player = weaponManager.playChar
+	if player:
+		if NetworkManager.is_lan_mode:
+			proj_instance.shooter_id = player.get("peer_id") if player.get("peer_id") else 0
+		else:
+			proj_instance.shooter_id = player.get("steam_id") if player.get("steam_id") else 0
+	
+	get_tree().get_root().add_child(proj_instance)
+	proj_instance.set_linear_velocity(projectile_direction * cW.projMoveSpeed)
+
+
+## Local raycast for visual effects only (bullet decals)
+## This does NOT handle damage - that's done by the server
+func _spawn_local_bullet_decal() -> void:
+	var camera: Camera3D = weaponManager.camera
+	if camera == null:
+		return
+	
+	# Initialize RNG if needed
+	if rng == null:
+		rng = RandomNumberGenerator.new()
+	
+	# Apply spread
+	var spread := Vector3(
+		rng.randf_range(cW.minSpread, cW.maxSpread),
+		rng.randf_range(cW.minSpread, cW.maxSpread),
+		rng.randf_range(cW.minSpread, cW.maxSpread)
+	)
+	
+	var aim_direction: Vector3 = (-camera.global_transform.basis.z + spread).normalized()
+	var ray_start: Vector3 = camera.global_position
+	var ray_end: Vector3 = ray_start + aim_direction * cW.maxRange
+	
+	# Local raycast for visual feedback
+	var query := PhysicsRayQueryParameters3D.create(ray_start, ray_end)
+	
+	# Exclude the local player
+	var player: CharacterBody3D = weaponManager.playChar
+	if player:
+		query.exclude = [player.get_rid()]
+	
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	
+	var space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
+	var result: Dictionary = space.intersect_ray(query)
+	
+	if result:
+		var hit_point: Vector3 = result.position
+		var hit_normal: Vector3 = result.normal
+		var hit_collider: Object = result.collider
+		
+		# Spawn bullet decal on non-player surfaces
+		if not (hit_collider is CharacterBody3D):
+			weaponManager.displayBulletHole(hit_point, hit_normal)
+		else:
+			# Hit a player - could show blood effect here instead
+			# For now, just don't spawn a decal
+			pass
+
+
+# Legacy function kept for compatibility - now unused for hitscan
+func getCameraPOV() -> Vector3:
+	var camera: Camera3D = weaponManager.camera
+	if camera == null:
+		return Vector3.ZERO
+	
+	var window: Window = get_window()
+	var viewport: Vector2i
+	
 	match window.content_scale_mode:
 		window.CONTENT_SCALE_MODE_VIEWPORT:
 			viewport = window.content_scale_size
@@ -75,83 +203,18 @@ func getCameraPOV():
 			viewport = window.content_scale_size
 		window.CONTENT_SCALE_MODE_DISABLED:
 			viewport = window.get_size()
-			
-	#Start raycast in camera position, and launch it in camera direction 
-	var raycastStart = camera.project_ray_origin(viewport/2)
-	var raycastEnd
-	if cW.type == cW.types.HITSCAN: raycastEnd = raycastStart + camera.project_ray_normal(viewport/2) * cW.maxRange 
-	if cW.type == cW.types.PROJECTILE: raycastEnd = raycastStart + camera.project_ray_normal(viewport/2) * 280
 	
-	#Create intersection space to contain possible collisions 
-	var newIntersection = PhysicsRayQueryParameters3D.create(raycastStart, raycastEnd)
-	var intersection = get_world_3d().direct_space_state.intersect_ray(newIntersection)
+	var raycast_start: Vector3 = camera.project_ray_origin(viewport / 2)
+	var raycast_end: Vector3
 	
-	#If the raycast has collide with something, return collision point transform properties
-	if !intersection.is_empty():
-		var collisionPoint = intersection.position
-		return collisionPoint 
-	#Else, return the end of the raycast (so nothing, because he hasn't collide with anything) 
+	if cW.type == cW.types.HITSCAN:
+		raycast_end = raycast_start + camera.project_ray_normal(viewport / 2) * cW.maxRange
 	else:
-		return raycastEnd 
-		
-func hitscanShot(pointOfCollisionHitscan : Vector3):
-	rng = RandomNumberGenerator.new()
+		raycast_end = raycast_start + camera.project_ray_normal(viewport / 2) * 280
 	
-	#set up weapon shot sprad 
-	var spread = Vector3(rng.randf_range(cW.minSpread, cW.maxSpread), rng.randf_range(cW.minSpread, cW.maxSpread), rng.randf_range(cW.minSpread, cW.maxSpread))
+	var query := PhysicsRayQueryParameters3D.create(raycast_start, raycast_end)
+	var intersection: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	
-	#calculate direction of the hitscan bullet 
-	var hitscanBulletDirection = (pointOfCollisionHitscan - cW.weaponSlot.attackPoint.get_global_transform().origin).normalized()
-	
-	#create new intersection space to contain possibe collisions 
-	var newIntersection = PhysicsRayQueryParameters3D.create(cW.weaponSlot.attackPoint.get_global_transform().origin, pointOfCollisionHitscan + spread + hitscanBulletDirection * 2)
-	newIntersection.collide_with_areas = true
-	newIntersection.collide_with_bodies = true 
-	var hitscanBulletCollision = get_world_3d().direct_space_state.intersect_ray(newIntersection)
-	
-	#if the raycast has collide
-	if hitscanBulletCollision: 
-		var collider = hitscanBulletCollision.collider
-		var colliderPoint = hitscanBulletCollision.position
-		var colliderNormal = hitscanBulletCollision.normal 
-		var finalDamage : int
-		
-		if collider.is_in_group("Enemies") and collider.has_method("hitscanHit"):
-			finalDamage = cW.damagePerProj * cW.damageDropoff.sample(pointOfCollisionHitscan.distance_to(global_position) / cW.maxRange)
-			collider.hitscanHit(finalDamage, hitscanBulletDirection, hitscanBulletCollision.position)
-		
-		elif collider.is_in_group("EnemiesHead") and collider.has_method("hitscanHit"):
-				finalDamage = cW.damagePerProj * cW.headshotDamageMult * cW.damageDropoff.sample(pointOfCollisionHitscan.distance_to(global_position) / cW.maxRange)
-				collider.hitscanHit(finalDamage, hitscanBulletDirection, hitscanBulletCollision.position)
-		
-		elif collider.is_in_group("HitableObjects") and collider.has_method("hitscanHit"): 
-			finalDamage = cW.damagePerProj * cW.damageDropoff.sample(pointOfCollisionHitscan.distance_to(global_position) / cW.maxRange)
-			collider.hitscanHit(finalDamage/6.0, hitscanBulletDirection, hitscanBulletCollision.position)
-			weaponManager.displayBulletHole(colliderPoint, colliderNormal)
-			
-		else:
-			weaponManager.displayBulletHole(colliderPoint, colliderNormal)
-			
-func projectileShot(pointOfCollisionProjectile : Vector3):
-	rng = RandomNumberGenerator.new()
-	
-	#set up weapon shot sprad 
-	var spread = Vector3(rng.randf_range(cW.minSpread, cW.maxSpread), rng.randf_range(cW.minSpread, cW.maxSpread), rng.randf_range(cW.minSpread, cW.maxSpread))
-	
-	#Calculate direction of the projectile
-	var projectileDirection = ((pointOfCollisionProjectile - cW.weaponSlot.attackPoint.get_global_transform().origin).normalized() + spread)
-	
-	#Instantiate projectile
-	var projInstance = cW.projRef.instantiate()
-	
-	#set projectile properties 
-	projInstance.global_transform = cW.weaponSlot.attackPoint.global_transform
-	projInstance.direction = projectileDirection
-	projInstance.damage = cW.damagePerProj
-	projInstance.timeBeforeVanish = cW.projTimeBeforeVanish
-	projInstance.gravity_scale = cW.projGravityVal
-	projInstance.isExplosive = cW.isProjExplosive
-	
-	get_tree().get_root().add_child(projInstance)
-	
-	projInstance.set_linear_velocity(projectileDirection * cW.projMoveSpeed)
+	if not intersection.is_empty():
+		return intersection.position
+	return raycast_end

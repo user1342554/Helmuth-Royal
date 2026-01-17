@@ -70,7 +70,12 @@ const SPRINT_BOB_MULT := 0.8
 const STAND_HEIGHT := 1.8
 const CROUCH_HEIGHT := 1.0
 
+@export var max_health: float = 100.0
 @export var health: float = 100.0
+var alive: bool = true
+
+# Respawn settings
+const RESPAWN_TIME: float = 3.0
 
 @onready var camera_mount: Node3D = $CameraMount
 @onready var camera: Camera3D = $CameraMount/Camera3D
@@ -146,6 +151,9 @@ var _wall_raycast_right: RayCast3D
 
 
 func _ready() -> void:
+	# Add to players group for easy lookup
+	add_to_group("players")
+	
 	# Initialize collision shape to correct values
 	_init_collision_shape()
 	
@@ -866,11 +874,179 @@ func _input(event: InputEvent) -> void:
 		camera_mount.rotation.x = clamp(camera_mount.rotation.x, -PI * 0.45, PI * 0.45)
 
 
+## Legacy take_damage - use server_apply_damage instead for multiplayer
 func take_damage(amount: float, _from_steam_id: int = 0) -> void:
-	health -= amount
+	# Only server should apply damage in multiplayer
+	if multiplayer.is_server():
+		server_apply_damage(amount, _from_steam_id)
+
+
+## Check if player is alive
+func is_alive() -> bool:
+	return alive
+
+
+# --- Server-Authoritative Combat System ---
+
+## Called by CombatManager on server only - applies damage and syncs to clients
+func server_apply_damage(amount: float, attacker_id: int) -> void:
+	if not multiplayer.is_server() or not alive:
+		return
+	
+	health = maxf(health - amount, 0.0)
+	print("[Player %s] Took %.1f damage from %d, health: %.1f" % [name, amount, attacker_id, health])
+	
+	# Sync health to all clients
+	_rpc_sync_health.rpc(health)
+	
 	if health <= 0:
-		health = 0
-		# TODO: Handle death
+		_server_trigger_death(attacker_id)
+
+
+## RPC to sync health - uses any_peer but verifies sender is server
+@rpc("any_peer", "call_local", "reliable")
+func _rpc_sync_health(new_health: float) -> void:
+	# SECURITY: Only accept from server (peer 1) or local call (0)
+	var sender: int = multiplayer.get_remote_sender_id()
+	if sender != 1 and sender != 0:
+		return
+	
+	health = new_health
+	
+	# Update health UI if local player
+	if is_local_player:
+		_update_health_ui()
+
+
+func _update_health_ui() -> void:
+	# TODO: Update HUD health bar
+	pass
+
+
+## Server triggers death when health reaches 0
+func _server_trigger_death(killer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	
+	alive = false
+	
+	# Update game state
+	var my_id: int = peer_id if NetworkManager.is_lan_mode else steam_id
+	GameState.kill_player(my_id, killer_id)
+	
+	print("[Player %s] Died! Killed by %d" % [name, killer_id])
+	
+	# Notify all clients
+	_rpc_trigger_death.rpc(killer_id)
+	
+	# Start respawn timer (server-side)
+	await get_tree().create_timer(RESPAWN_TIME).timeout
+	_server_respawn()
+
+
+## RPC for death - any_peer but verify sender is server
+@rpc("any_peer", "call_local", "reliable")
+func _rpc_trigger_death(killer_id: int) -> void:
+	var sender: int = multiplayer.get_remote_sender_id()
+	if sender != 1 and sender != 0:
+		return
+	
+	alive = false
+	
+	# Disable collision so dead body doesn't block shots
+	if collision_shape:
+		collision_shape.disabled = true
+	
+	# Hide player mesh
+	if body_mesh:
+		body_mesh.visible = false
+	if has_node("HeadMesh"):
+		$HeadMesh.visible = false
+	
+	# Disable weapon
+	var weapon_manager = get_node_or_null("CameraMount/Camera3D/WeaponManager")
+	if weapon_manager:
+		weapon_manager.visible = false
+	
+	if is_local_player:
+		# Disable input processing
+		set_physics_process(false)
+		# Show death UI / spectate mode
+		_show_death_screen(killer_id)
+
+
+func _show_death_screen(killer_id: int) -> void:
+	# TODO: Show "You were killed by X" UI
+	# TODO: Spectate mode camera
+	print("[Player] You were killed by player %d! Respawning in %.1f seconds..." % [killer_id, RESPAWN_TIME])
+
+
+## Server handles respawn
+func _server_respawn() -> void:
+	if not multiplayer.is_server():
+		return
+	
+	var spawn_pos: Vector3 = _get_random_spawn_point()
+	print("[Player %s] Respawning at %s" % [name, spawn_pos])
+	_rpc_respawn.rpc(spawn_pos)
+
+
+## RPC for respawn - any_peer but verify sender is server
+@rpc("any_peer", "call_local", "reliable")
+func _rpc_respawn(spawn_position: Vector3) -> void:
+	var sender: int = multiplayer.get_remote_sender_id()
+	if sender != 1 and sender != 0:
+		return
+	
+	# Reset state
+	health = max_health
+	alive = true
+	position = spawn_position
+	velocity = Vector3.ZERO
+	
+	# Re-enable collision
+	if collision_shape:
+		collision_shape.disabled = false
+	
+	# Re-enable weapon
+	var weapon_manager = get_node_or_null("CameraMount/Camera3D/WeaponManager")
+	if weapon_manager:
+		weapon_manager.visible = true
+	
+	if is_local_player:
+		# Local player: HIDE mesh (first-person, don't see own body)
+		if body_mesh:
+			body_mesh.visible = false
+		if has_node("HeadMesh"):
+			$HeadMesh.visible = false
+		# Re-enable input
+		set_physics_process(true)
+		_hide_death_screen()
+	else:
+		# Remote player: SHOW mesh so others can see them
+		if body_mesh:
+			body_mesh.visible = true
+		if has_node("HeadMesh"):
+			$HeadMesh.visible = true
+	
+	print("[Player %s] Respawned at %s with %.1f health" % [name, spawn_position, health])
+
+
+func _get_random_spawn_point() -> Vector3:
+	var spawns: Array[Node] = []
+	for node in get_tree().get_nodes_in_group("spawn_points"):
+		spawns.append(node)
+	
+	if spawns.is_empty():
+		# Fallback to a default position
+		return Vector3(randf_range(-5, 5), 2, randf_range(-5, 5))
+	
+	return spawns[randi() % spawns.size()].global_position
+
+
+func _hide_death_screen() -> void:
+	# TODO: Hide death UI
+	print("[Player] Respawned!")
 
 
 func get_current_speed() -> float:

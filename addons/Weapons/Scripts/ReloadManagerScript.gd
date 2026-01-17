@@ -7,7 +7,7 @@ var playSoundAndAnim : bool
 var forceReloadStop : bool = false
 
 var cW #current weapon
-@onready var weaponManager : Node3D = %WeaponManager #weapon manager
+@onready var weaponManager : Node3D = get_parent()  # WeaponManager is direct parent
 
 func getCurrentWeapon(currentWeapon):
 	cW = currentWeapon

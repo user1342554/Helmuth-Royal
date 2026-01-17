@@ -1,8 +1,8 @@
 [gd_scene load_steps=12 format=4 uid="uid://cjhibfe5567xa"]
 
-[ext_resource type="Texture2D" uid="uid://cbr0w1ctijpoj" path="res://godot-simple-fps-weapon-system/addons/Targets/Models/ShootingRangeTarget/textures/Material.004_baseColor.png" id="1_8s6rv"]
-[ext_resource type="Script" uid="uid://0mu6mj41uch3" path="res://godot-simple-fps-weapon-system/addons/Targets/Scripts/ShootingRangeTargetScript.gd" id="1_oa43s"]
-[ext_resource type="Script" uid="uid://cnw6x7g8unlvp" path="res://godot-simple-fps-weapon-system/addons/Targets/Scripts/ShootingRangeTargetHeadScript.gd" id="3_oimbx"]
+[ext_resource type="Texture2D" uid="uid://cbr0w1ctijpoj" path="res://addons/Targets/Models/ShootingRangeTarget/textures/Material.004_baseColor.png" id="1_8s6rv"]
+[ext_resource type="Script" uid="uid://0mu6mj41uch3" path="res://addons/Targets/Scripts/ShootingRangeTargetScript.gd" id="1_oa43s"]
+[ext_resource type="Script" uid="uid://cnw6x7g8unlvp" path="res://addons/Targets/Scripts/ShootingRangeTargetHeadScript.gd" id="3_oimbx"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bexir"]
 resource_name = "Material.004"

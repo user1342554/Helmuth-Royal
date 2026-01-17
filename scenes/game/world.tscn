@@ -1,9 +1,37 @@
-[gd_scene load_steps=8 format=3 uid="uid://ctvk2y5nqmjxy"]
+[gd_scene load_steps=17 format=3 uid="uid://ctvk2y5nqmjxy"]
 
 [ext_resource type="Script" uid="uid://c1pe6lb28g5rt" path="res://scenes/game/world.gd" id="1_world"]
 [ext_resource type="PackedScene" uid="uid://c8xymenu001" path="res://scenes/ui/escape_menu.tscn" id="3_escape"]
 [ext_resource type="Material" uid="uid://7wuop4abysij" path="res://world/materials/SkyMaterial.tres" id="4_sky_material"]
 [ext_resource type="Script" uid="uid://j7dotk38ix2b" path="res://world/sky.gd" id="5_sky_script"]
+[ext_resource type="Script" path="res://scenes/game/hud.gd" id="6_hud"]
+[ext_resource type="Script" path="res://scenes/game/damage_dummy.gd" id="7_dummy"]
+[ext_resource type="PackedScene" uid="uid://pjv5ptit5tvg" path="res://addons/Weapons/Scenes/AmmoRefillerScene.tscn" id="8_ammo_scene"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_fill"]
+bg_color = Color(0.8, 0.2, 0.2, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_bg"]
+bg_color = Color(0.15, 0.15, 0.15, 0.8)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dummy"]
+radius = 0.4
+height = 2.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_dummy"]
+radius = 0.4
+height = 2.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dummy"]
+albedo_color = Color(0.8, 0.2, 0.2, 1)
 
 [sub_resource type="Sky" id="Sky_1"]
 sky_material = ExtResource("4_sky_material")
@@ -163,6 +191,32 @@ rings = 4
 
 [node name="Players" type="Node3D" parent="."]
 
+[node name="SpawnPoints" type="Node3D" parent="."]
+
+[node name="Spawn1" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 2, 5)
+
+[node name="Spawn2" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 2, 5)
+
+[node name="Spawn3" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 2, -5)
+
+[node name="Spawn4" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 2, -5)
+
+[node name="Spawn5" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 2, 0)
+
+[node name="Spawn6" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 2, 0)
+
+[node name="Spawn7" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 15)
+
+[node name="Spawn8" type="Marker3D" parent="SpawnPoints" groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -15)
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="GameUI" type="Control" parent="UI"]
@@ -173,26 +227,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-
-[node name="TopBar" type="HBoxContainer" parent="UI/GameUI"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_bottom = 50.0
-grow_horizontal = 2
-theme_override_constants/separation = 20
-
-[node name="AliveCount" type="Label" parent="UI/GameUI/TopBar"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Alive: 20"
-
-[node name="MatchPhase" type="Label" parent="UI/GameUI/TopBar"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Lobby"
 
 [node name="Crosshair" type="Control" parent="UI/GameUI"]
 layout_mode = 1
@@ -221,3 +255,139 @@ color = Color(1, 1, 1, 0.8)
 
 [node name="EscapeMenu" parent="UI" instance=ExtResource("3_escape")]
 visible = false
+
+[node name="HUD" type="CanvasLayer" parent="UI"]
+layer = 1
+script = ExtResource("6_hud")
+
+[node name="HealthContainer" type="VBoxContainer" parent="UI/HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -100.0
+offset_right = 270.0
+offset_bottom = -20.0
+grow_vertical = 0
+
+[node name="HealthLabel" type="Label" parent="UI/HUD/HealthContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "100 / 100"
+
+[node name="HealthBar" type="ProgressBar" parent="UI/HUD/HealthContainer"]
+custom_minimum_size = Vector2(250, 25)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_health_fill")
+theme_override_styles/background = SubResource("StyleBoxFlat_health_bg")
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="AmmoContainer" type="VBoxContainer" parent="UI/HUD"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -120.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+alignment = 2
+
+[node name="WeaponName" type="Label" parent="UI/HUD/AmmoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "Pistol"
+horizontal_alignment = 2
+
+[node name="AmmoRow" type="HBoxContainer" parent="UI/HUD/AmmoContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="AmmoLabel" type="Label" parent="UI/HUD/AmmoContainer/AmmoRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 48
+text = "30"
+horizontal_alignment = 2
+
+[node name="ReserveLabel" type="Label" parent="UI/HUD/AmmoContainer/AmmoRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 24
+text = "/ 90"
+vertical_alignment = 2
+
+[node name="DamageDummy" type="CharacterBody3D" parent="." groups=["damage_dummy"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -8)
+script = ExtResource("7_dummy")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageDummy"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_dummy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DamageDummy"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_dummy")
+surface_material_override/0 = SubResource("StandardMaterial3D_dummy")
+
+[node name="HealthBar3D" type="Sprite3D" parent="DamageDummy"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+pixel_size = 0.005
+billboard = 1
+texture_filter = 0
+
+[node name="SubViewport" type="SubViewport" parent="DamageDummy/HealthBar3D"]
+transparent_bg = true
+size = Vector2i(200, 80)
+render_target_update_mode = 4
+
+[node name="HealthBar" type="ProgressBar" parent="DamageDummy/HealthBar3D/SubViewport"]
+offset_right = 200.0
+offset_bottom = 25.0
+value = 100.0
+show_percentage = false
+
+[node name="HealthLabel" type="Label" parent="DamageDummy/HealthBar3D/SubViewport"]
+offset_top = 25.0
+offset_right = 200.0
+offset_bottom = 50.0
+text = "1000 / 1000"
+horizontal_alignment = 1
+
+[node name="DPSLabel" type="Label" parent="DamageDummy/HealthBar3D/SubViewport"]
+offset_top = 50.0
+offset_right = 200.0
+offset_bottom = 75.0
+theme_override_colors/font_color = Color(1, 0.8, 0, 1)
+text = "DPS: 0"
+horizontal_alignment = 1
+
+[node name="AmmoBoxes" type="Node3D" parent="."]
+
+[node name="AmmoBox1" parent="AmmoBoxes" instance=ExtResource("8_ammo_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 8)
+
+[node name="AmmoBox2" parent="AmmoBoxes" instance=ExtResource("8_ammo_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, -10)
+
+[node name="AmmoBox3" parent="AmmoBoxes" instance=ExtResource("8_ammo_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -20)
+
+[node name="AmmoBox4" parent="AmmoBoxes" instance=ExtResource("8_ammo_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 25)
+
+[node name="AmmoBox5" parent="AmmoBoxes" instance=ExtResource("8_ammo_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 30)
+
+[node name="AmmoBox6" parent="AmmoBoxes" instance=ExtResource("8_ammo_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, -40)
+
+[node name="AmmoBoxNearSpawn" parent="AmmoBoxes" instance=ExtResource("8_ammo_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 10)

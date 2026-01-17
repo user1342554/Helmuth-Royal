@@ -14,15 +14,19 @@ var canChangeWeapons : bool = true
 var canUseWeapon : bool = true
 
 @export_group("Keybind variables")
-@export var shoot_action : String
-@export var reload_action : String
-@export var weapon_wheel_up_action : String
-@export var weapon_wheel_down_action : String
+@export var shoot_action : String = "shoot"
+@export var reload_action : String = "reload"
+@export var weapon_wheel_up_action : String = "weaponWheelUp"
+@export var weapon_wheel_down_action : String = "weaponWheelDown"
 
-@onready var playChar : CharacterBody3D = $"../../../.."
-@onready var cameraHolder : Node3D = %CameraHolder
-@onready var cameraRecoilHolder : Node3D = %CameraRecoilHolder
-@onready var camera : Camera3D = %Camera
+# Player reference - WeaponManager is at Player/CameraMount/Camera3D/WeaponManager
+@onready var playChar : CharacterBody3D = get_node("../../..") as CharacterBody3D
+# Camera is the direct parent (Camera3D)
+@onready var camera : Camera3D = get_parent() as Camera3D
+# CameraMount is Camera3D's parent
+@onready var cameraHolder : Node3D = get_node("../..") as Node3D
+# These are internal to the WeaponManager scene (use unique names)
+@onready var cameraRecoilHolder : Node3D = get_node_or_null("%CameraRecoilHolder")
 @onready var weaponContainer : Node3D = %WeaponContainer
 @onready var shootManager : Node3D = %ShootManager
 @onready var reloadManager : Node3D = %ReloadManager
@@ -31,8 +35,22 @@ var canUseWeapon : bool = true
 @onready var animManager : Node3D = %AnimationManager
 @onready var audioManager : PackedScene = preload("../../Misc/Scenes/AudioManagerScene.tscn")
 @onready var bulletDecal : PackedScene = preload("../../Weapons/Scenes/BulletDecalScene.tscn")
-@onready var hud : CanvasLayer = %HUD
-@onready var linkComponent : Node3D = %LinkComponent
+# HUD may not exist - handle gracefully (try multiple possible paths)
+@onready var hud : CanvasLayer = _find_hud()
+
+func _find_hud() -> CanvasLayer:
+	# Try different possible HUD locations
+	var possible_paths := [
+		"/root/World/UI/HUD",
+		"/root/Main/World/UI/HUD",
+	]
+	for path in possible_paths:
+		var node = get_node_or_null(path)
+		if node:
+			return node as CanvasLayer
+	return null
+# LinkComponent may not exist
+@onready var linkComponent : Node3D = get_node_or_null("%LinkComponent")
 
 func _ready():
 	initialize()
@@ -109,6 +127,11 @@ func enterWeapon(nextWeapon : int):
 	canChangeWeapons = true
 	
 func _process(_delta : float):
+	# CRITICAL: Only local player processes weapon input
+	# This prevents remote players from controlling weapons
+	if playChar == null or not playChar.is_local_player:
+		return
+	
 	if cW != null and cWModel != null and canUseWeapon:
 		weaponInputs()
 		
@@ -132,10 +155,16 @@ func weaponInputs():
 			changeWeapon(weaponStack[weaponIndex])
 		
 func displayStats():
-	hud.displayWeaponStack(weaponStack.size())
-	hud.displayWeaponName(cW.weaponName)
-	hud.displayTotalAmmoInMag(cW.totalAmmoInMag, cW.nbProjShotsAtSameTime)
-	hud.displayTotalAmmo(ammoManager.ammoDict[cW.ammoType], cW.nbProjShotsAtSameTime)
+	if hud == null or cW == null:
+		return
+	if hud.has_method("displayWeaponStack"):
+		hud.displayWeaponStack(weaponStack.size())
+	if hud.has_method("displayWeaponName"):
+		hud.displayWeaponName(cW.weaponName)
+	if hud.has_method("displayTotalAmmoInMag"):
+		hud.displayTotalAmmoInMag(cW.totalAmmoInMag, cW.nbProjShotsAtSameTime)
+	if hud.has_method("displayTotalAmmo"):
+		hud.displayTotalAmmo(ammoManager.ammoDict[cW.ammoType], cW.nbProjShotsAtSameTime)
 	
 func changeWeapon(nextWeapon : int):
 	if canChangeWeapons and !cW.isShooting and !cW.isReloading:
@@ -180,3 +209,9 @@ func weaponSoundManagement(soundName : AudioStream, soundSpeed : float):
 func forceAttackPointTransformValues(attackPoint : Marker3D):
 	#reset the attack points rotation values, to ensure that the projectiles will be shot in the correct direction
 	if attackPoint.rotation != Vector3.ZERO: attackPoint.rotation = Vector3.ZERO
+
+
+## Play shot sound for remote players (called by CombatManager)
+func play_remote_shot_sound() -> void:
+	if cW != null and cW.shootSound:
+		weaponSoundManagement(cW.shootSound, cW.shootSoundSpeed)

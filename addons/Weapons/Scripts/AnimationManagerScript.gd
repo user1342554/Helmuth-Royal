@@ -3,10 +3,15 @@ extends Node3D
 var cW
 var cWModel : Node3D
 
-@onready var cameraHolder : Node3D = %CameraHolder
-@onready var playChar : CharacterBody3D = $"../../../../.."
+# Path from AnimationManager: WeaponManager -> Camera3D -> CameraMount -> Player
+@onready var cameraHolder : Node3D = get_node_or_null("../../..")  # CameraMount
+@onready var playChar : CharacterBody3D = get_node_or_null("../../../..") as CharacterBody3D  # Player
 @onready var animPlayer : AnimationPlayer = %AnimationPlayer
-@onready var weaponManager : Node3D = %WeaponManager
+@onready var weaponManager : Node3D = get_parent()  # WeaponManager is parent
+
+# Track mouse movement for sway
+var _mouse_input: Vector2 = Vector2.ZERO
+var _input_direction: Vector2 = Vector2.ZERO
 
 func getCurrentWeapon(currWeap, currweaponManagerodel):
 	#get current weapon model and resources
@@ -14,10 +19,24 @@ func getCurrentWeapon(currWeap, currweaponManagerodel):
 	cWModel = currweaponManagerodel
 	
 func _process(delta: float):
+	# Only run for local player
+	if playChar == null or not playChar.is_local_player:
+		return
 	if cW != null and cWModel != null:
-		weaponTilt(playChar.inputDirection, delta)
-		weaponSway(cameraHolder.mouseInput, delta)
-		weaponBob(playChar.velocity.length(),delta)
+		# Get input direction from player movement input
+		_input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+		weaponTilt(_input_direction, delta)
+		weaponSway(_mouse_input, delta)
+		weaponBob(playChar.velocity.length(), delta)
+		# Reset mouse input after using it
+		_mouse_input = Vector2.ZERO
+
+func _input(event: InputEvent) -> void:
+	# Only process input for local player
+	if playChar == null or not playChar.is_local_player:
+		return
+	if event is InputEventMouseMotion:
+		_mouse_input = event.relative
 		
 func weaponTilt(playCharInput, delta):
 	#rotate weapon model on the z axis depending on the player character direction orientation (left or right)

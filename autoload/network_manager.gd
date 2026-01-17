@@ -418,6 +418,14 @@ func _on_p2p_packet_received(data: PackedByteArray, sender_id: int) -> void:
 		"POS":
 			# Position update from another player
 			_handle_position_update(sender_id, packet.get("data", {}))
+		"FIRE":
+			# Fire request from client - server processes hit detection
+			if is_host:
+				var fire_data: Dictionary = packet.get("data", {})
+				var dir_arr: Array = fire_data.get("dir", [0.0, 0.0, -1.0])
+				var aim_dir := Vector3(dir_arr[0], dir_arr[1], dir_arr[2])
+				var weapon_id: int = fire_data.get("weapon_id", 1)
+				CombatManager.handle_steam_fire_packet(sender_id, weapon_id, aim_dir)
 
 
 # --- LAN Callbacks ---

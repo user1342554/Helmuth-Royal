@@ -2,8 +2,6 @@ extends Node3D
 ## World - Game world container with player spawning and match management
 
 @onready var players_container: Node3D = $Players
-@onready var alive_count_label: Label = $UI/GameUI/TopBar/AliveCount
-@onready var match_phase_label: Label = $UI/GameUI/TopBar/MatchPhase
 @onready var escape_menu: Control = $UI/EscapeMenu
 
 const PLAYER_SCENE := preload("res://scenes/player/player.tscn")
@@ -41,9 +39,6 @@ func _ready() -> void:
 	
 	# Enable proximity voice chat
 	VoiceManager.enable_voice()
-	
-	# Update UI
-	_update_ui()
 
 
 func _input(event: InputEvent) -> void:
@@ -209,27 +204,10 @@ func _spawn_player_for_peer(peer_id: int) -> void:
 		VoiceManager.setup_voice_playback_for(peer_id, player)
 
 
-func _update_ui() -> void:
-	alive_count_label.text = "Alive: %d" % GameState.alive_count
-	
-	match GameState.match_phase:
-		GameState.MatchPhase.LOBBY:
-			match_phase_label.text = "Lobby - Waiting for players"
-		GameState.MatchPhase.STARTING:
-			match_phase_label.text = "Match Starting..."
-		GameState.MatchPhase.IN_GAME:
-			match_phase_label.text = "In Game"
-		GameState.MatchPhase.ENDED:
-			var winner := GameState.get_winner()
-			var winner_data := GameState.get_player(winner)
-			var winner_name: String = winner_data.get("name", "Unknown") if winner > 0 else "No one"
-			match_phase_label.text = "Winner: %s!" % winner_name
-
-
 # --- Signal Handlers ---
 
 func _on_player_added(_steam_id: int, _player_data: Dictionary) -> void:
-	_update_ui()
+	pass  # UI updates handled elsewhere
 
 
 func _on_player_removed(peer_id: int) -> void:
@@ -243,16 +221,14 @@ func _on_player_removed(peer_id: int) -> void:
 			player_node.queue_free()
 		_spawned_players.erase(peer_id)
 		NetworkManager.unregister_player_node(peer_id)
-	
-	_update_ui()
 
 
 func _on_player_updated(_steam_id: int, _player_data: Dictionary) -> void:
-	_update_ui()
+	pass  # UI updates handled elsewhere
 
 
 func _on_match_phase_changed(_phase: GameState.MatchPhase) -> void:
-	_update_ui()
+	pass  # UI updates handled elsewhere
 
 
 func _on_leave_pressed() -> void:

@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://dkp7hbnq4v1rl"]
+[gd_scene load_steps=8 format=3 uid="uid://dkp7hbnq4v1rl"]
 
 [ext_resource type="Script" uid="uid://dxvr6xexbyog3" path="res://scenes/player/player.gd" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://ihkgdms5wjsu" path="res://addons/Weapons/Scenes/WeaponManagerScene.tscn" id="2_weapon"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 resource_local_to_scene = true
@@ -34,6 +35,8 @@ properties/3/spawn = true
 properties/3/replication_mode = 1
 
 [node name="Player" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_player")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -54,6 +57,8 @@ surface_material_override/0 = SubResource("StandardMaterial3D_1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
 [node name="Camera3D" type="Camera3D" parent="CameraMount"]
+
+[node name="WeaponManager" parent="CameraMount/Camera3D" instance=ExtResource("2_weapon")]
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_1")
