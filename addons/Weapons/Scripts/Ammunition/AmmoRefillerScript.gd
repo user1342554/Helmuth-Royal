@@ -17,6 +17,7 @@ var player_in_range: Node3D = null
 
 @onready var mesh: Node3D = get_node_or_null("Model")
 @onready var detect_area: Area3D = get_node_or_null("DetectArea")
+@onready var interact_label = get_node_or_null("InteractLabel")
 
 
 func _ready() -> void:
